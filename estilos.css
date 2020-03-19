@@ -1,0 +1,21 @@
+aside{
+    width: 15%;
+}
+
+section{
+    width: 85%;
+}
+
+th{
+    width: 200px;
+    padding: 10px;
+    text-align: center !important;
+}
+
+td{
+    width: 200px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
