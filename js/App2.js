@@ -4,6 +4,7 @@ const tbody = document.getElementById('tbody');
 const enviarBtn = document.getElementById('enviarBtn');
 const formulario = document.getElementById('formulario');
 const formularioMod = document.getElementById('e-mod');
+const cont = document.getElementById('cont');
 
 // event Listener
 
@@ -30,18 +31,23 @@ function EventListener() {
 // enviar datos desde el formulario
 function enviarNombre(e) {
     e.preventDefault();
+    // asignar id
+    let id, idMore;
+    id = idLS();
+    idMore = id + 1;
+    localStorage.setItem('id', idMore);
 
-    let id,contador;
-    id= idLS();
+    // contador
+    let contador, addContador;
+    contador = contadorLS();
+    addContador = contador + 1;
+    localStorage.setItem('contador', addContador)
 
-    contador = id +1;
-
-    localStorage.setItem('id', contador);
     let nombreDato = nombre.value;
     const tr = document.createElement('tr');
     tr.classList.add('d-flex');
     tr.innerHTML = `
-        <td id ="id${contador}">${nombreDato}</td>  
+        <td id ="id${idMore}">${nombreDato}</td>  
         <td><button class="btn btn-danger form-control" >Borrar</button></td>  
         <td><button class="btn btn-warning form-control" >Modificar</button></td>  
     `;
@@ -49,7 +55,7 @@ function enviarNombre(e) {
 
     let objNombre = {
         nombre: nombreDato,
-        id: contador
+        id: idMore
     }
 
     agregarNombreLS(objNombre);
@@ -62,6 +68,7 @@ function agregarNombreLS(nombre) {
     let nombres = obtenerLS();
     nombres.push(nombre)
     localStorage.setItem('nombres', JSON.stringify(nombres))
+    location.reload(true); // necesario?
 }
 
 //  --------------------------------------------------------------
@@ -91,11 +98,17 @@ function eliminarNombreLS(nombreElegido) {
 
     nombres.map((nombre, i) => {
         if (nombre.nombre === nombreElegido.nombre && nombre.id === nombreElegido.id) {
-            nombres.splice(i,1);
+            nombres.splice(i, 1);
         }
     })
 
     localStorage.setItem('nombres', JSON.stringify(nombres))
+    // contador
+    let contador, addContador;
+    contador = contadorLS();
+    addContador = contador - 1;
+    localStorage.setItem('contador', addContador);
+    location.reload(true); // necesario?
 }
 
 //  --------------------------------------------------------------
@@ -128,26 +141,26 @@ function modificarNombre(e) {
     }
 }
 
-function modificarNombreLS(nombreAnterior){
+function modificarNombreLS(nombreAnterior) {
     let nombres = obtenerLS();
     document.getElementById('e-mod').addEventListener('click', function () {
-        
+
         var dMod = document.getElementById('d-mod').value;
         let objNombre = {
             nombre: dMod,
             id: nombreAnterior.id
         }
         // console.log("modificarNombreLS: "+objNombre.nombre +","+ objNombre.id)
-        console.log("nombre nuevo: "+dMod)
-        nombres.map((nombre,i) => {
-            if(nombre.nombre === nombreAnterior.nombre && nombre.id === nombreAnterior.id) {
-                nombres.splice(i,1,objNombre);
+        console.log("nombre nuevo: " + dMod)
+        nombres.map((nombre, i) => {
+            if (nombre.nombre === nombreAnterior.nombre && nombre.id === nombreAnterior.id) {
+                nombres.splice(i, 1, objNombre);
             }
         })
         localStorage.setItem('nombres', JSON.stringify(nombres));
         console.log(nombres)
         document.getElementById("elementMod").remove();
-        location.reload(true);
+        location.reload(true); // necesario?
     })
 }
 
@@ -164,16 +177,27 @@ function obtenerLS() {
     return nombres;
 }
 
-function idLS(){
+// crea un contado en storage por el cual se obtienen los id de los elementos
+function idLS() {
     let id;
-    if(localStorage.getItem('id') === null){
-        id= 0;
-    } else{
+    if (localStorage.getItem('id') === null) {
+        id = 0;
+    } else {
         id = JSON.parse(localStorage.getItem('id'));
     }
     return id;
 }
 
+// contador del total de elementos
+function contadorLS() {
+    let contador;
+    if (localStorage.getItem('contador') === null) {
+        contador = 0;
+    } else {
+        contador = JSON.parse(localStorage.getItem('contador'));
+    }
+    return contador;
+}
 
 // local storage listo para cargar
 function localStorageListo() {
@@ -189,4 +213,14 @@ function localStorageListo() {
         `;
         tbody.appendChild(tr);
     })
+    notifiacionBadge();
+}
+
+// -------------------------------------------------------
+
+// crea un contador de la cantidad de elementos de la tabla
+function notifiacionBadge(e) {
+    let addContador;
+    let contador = contadorLS();
+    cont.innerText = contador;
 }
