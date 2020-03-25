@@ -30,17 +30,29 @@ function EventListener() {
 // enviar datos desde el formulario
 function enviarNombre(e) {
     e.preventDefault();
+
+    let id,contador;
+    id= idLS();
+
+    contador = id +1;
+
+    localStorage.setItem('id', contador);
     let nombreDato = nombre.value;
     const tr = document.createElement('tr');
     tr.classList.add('d-flex');
     tr.innerHTML = `
-        <td>${nombreDato}</td>  
+        <td id ="id${contador}">${nombreDato}</td>  
         <td><button class="btn btn-danger form-control" >Borrar</button></td>  
         <td><button class="btn btn-warning form-control" >Modificar</button></td>  
     `;
     tbody.appendChild(tr);
 
-    agregarNombreLS(nombreDato);
+    let objNombre = {
+        nombre: nombreDato,
+        id: contador
+    }
+
+    agregarNombreLS(objNombre);
     formulario.reset();
 }
 
@@ -59,9 +71,17 @@ function eliminarNombre(e) {
     e.preventDefault();
     // console.log(e.target.parentElement.parentElement.children[0].innerText)
     if (e.target.classList.contains('btn-danger')) {
+
         e.target.parentElement.parentElement.remove();
         var dato = e.target.parentElement.parentElement.children[0].innerText;
-        eliminarNombreLS(dato);
+        let idname = e.target.parentElement.parentElement.children[0].getAttribute('id');
+
+        let objNombre = {
+            nombre: dato,
+            id: parseInt(idname)
+        }
+
+        eliminarNombreLS(objNombre);
     }
 }
 
@@ -70,10 +90,11 @@ function eliminarNombreLS(nombreElegido) {
     let nombres = obtenerLS();
 
     nombres.map((nombre, i) => {
-        if (nombre === nombreElegido) {
-            nombres.splice(i, 1);
+        if (nombre.nombre === nombreElegido.nombre && nombre.id === nombreElegido.id) {
+            nombres.splice(i,1);
         }
     })
+
     localStorage.setItem('nombres', JSON.stringify(nombres))
 }
 
@@ -96,8 +117,14 @@ function modificarNombre(e) {
         </form>
         `;
         var nombreAnterior = e.target.parentElement.parentElement.children[0].innerText;
+        let idname = e.target.parentElement.parentElement.children[0].getAttribute('id');
         console.log("nombre anterior: " + nombreAnterior)
-        modificarNombreLS(nombreAnterior);
+        let objNombre = {
+            nombre: nombreAnterior,
+            id: parseInt(idname)
+        }
+        // console.log("modificarNombre: "+objNombre.nombre +","+ objNombre.id)
+        modificarNombreLS(objNombre);
     }
 }
 
@@ -106,10 +133,15 @@ function modificarNombreLS(nombreAnterior){
     document.getElementById('e-mod').addEventListener('click', function () {
         
         var dMod = document.getElementById('d-mod').value;
+        let objNombre = {
+            nombre: dMod,
+            id: nombreAnterior.id
+        }
+        // console.log("modificarNombreLS: "+objNombre.nombre +","+ objNombre.id)
         console.log("nombre nuevo: "+dMod)
         nombres.map((nombre,i) => {
-            if(nombre === nombreAnterior) {
-                nombres.splice(i,1,dMod);
+            if(nombre.nombre === nombreAnterior.nombre && nombre.id === nombreAnterior.id) {
+                nombres.splice(i,1,objNombre);
             }
         })
         localStorage.setItem('nombres', JSON.stringify(nombres));
@@ -118,8 +150,6 @@ function modificarNombreLS(nombreAnterior){
         location.reload(true);
     })
 }
-
-
 
 //  --------------------------------------------------------------
 
@@ -134,6 +164,16 @@ function obtenerLS() {
     return nombres;
 }
 
+function idLS(){
+    let id;
+    if(localStorage.getItem('id') === null){
+        id= 0;
+    } else{
+        id = JSON.parse(localStorage.getItem('id'));
+    }
+    return id;
+}
+
 
 // local storage listo para cargar
 function localStorageListo() {
@@ -143,7 +183,7 @@ function localStorageListo() {
         const tr = document.createElement('tr');
         tr.classList.add('d-flex');
         tr.innerHTML = `
-            <td>${nombre}</td>  
+            <td id="${nombre.id}">${nombre.nombre}</td>  
             <td><button class="btn btn-danger form-control" >Borrar</button></td>  
             <td><button class="btn btn-warning form-control" >Modificar</button></td>  
         `;
